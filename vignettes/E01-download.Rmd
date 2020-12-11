@@ -1,0 +1,140 @@
+---
+title: "01 - Download"
+author: "Darius Görgen"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+ %\VignetteIndexEntry{01 - Download}
+ %\VignetteEngine{knitr::rmarkdown}
+ %\VignetteEncoding{UTF-8}
+---
+
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+collapse = TRUE,
+comment = "#>"
+)
+```
+
+## Preparation
+
+The sen2tool package allows us to easily download and work with Sentinel-2 (S2) Level 1C datasets.
+These datasets represent top of the atmosphere (TOA) reflectance values, thus they are not
+suitable for every analysis. However, for most applications based on indices, they are able
+to deliver robust results in a timely fashion. This is the main advantage of the present
+package in comparison to other packages working with S2 data such as sen2r. sen2r works
+on level 2B datasets which means that either you have to order the corresponding tiles
+from the SentinelHub or process the level 1C data locally on your machine using sen2cor.
+Both methods consume a lot of time and resources.
+sen2tool downloads S2 data from a public Google Bucket which are available directly without
+the need of a user account or waiting time for placing orders. To download from the bucket
+one prerequisite is that the download tool gsutil is installed on your machine and available
+on the command line. Instructions to install the tool on various operating systems (OS)
+can be found [here](https://cloud.google.com/storage/docs/gsutil_install).
+Once you installed the software open a command line of your choice and enter
+the following line. You should get some version info on the gsutil tool otherwise
+something went wrong during the installation. 
+
+```{bash, eval = F}
+gsutil version
+```
+
+Another option to use mapme.vegetation in a reproducible environment is to use the Docker engine
+to create a containers based on our [Dockerfile](../../Dockerfile). Here, gsutil is automatically
+installed when the image is created.
+
+## Querying data
+
+To query data, the first step is to load the necessary libraries.
+
+```{r setup, eval = F}
+library(sf)
+library(stars)
+library(mapme.vegetation)
+```
+For querying data there are two mandatory inputs. One is an area of interest represented
+by a `sf` object the other is the time window for which we are querying the data. An optional
+input is the maximum of cloud cover allowed for a scene to appear in our query. If it is not
+specified, then all scenes matching the mandatory inputs are downloaded.
+
+We will now load an example object which is found within the `sen2tool` package.
+
+```{r read-in, eval = F}
+aoi = st_read(system.file("extdata", "testregion.gpkg", package = "mapme.vegetation"))
+```
+
+There are two options you can decide how `mapme.vegetation` internally is querying matching 
+scenes. The one uses less local storage (~1.6 GB) but is usually slower, while
+the other occupies more local storage (~5 GB) but queries are faster retrieved.
+When the package is freshly installed and the `downloadS2()` function is used for the
+first time, you should determine your decision with the `use_db` option. This options
+default is `TRUE` meaning that during the first execution the tile index file
+is downloaded from Google Bucket and translated to a local SQLite data base.
+Initially, this process takes some time, however as stated above future queries
+are then processed more quickly. In case you opt for not using a local database 
+(`use_db = FALSE`) the tile index is also downloaded and translated to a `.csv` file.
+Queries are then applied to the `.csv` file which is why they are usually slower
+compared to the database approach.
+Note that either option you chose, the corresponding file is stored in the local
+installation path of the `sen2tool` packages. This is why when the package is 
+re-installed, the tile index needs to be downloaded and processed again. You
+can find the local installation path of the package with `r find.package("sen2tool")`.
+
+Now, let us send a first query.
+
+```{r download, eval = F}
+tiles_seasonal = downloadS2(aoi = aoi,
+                            time_window = c("2016-06-01", "2019-09-30"),
+                            time_period = "seasonal",
+                            rootdir = ".",
+                            extent_name = "test",
+                            max_cloud = 75,
+                            use_db = TRUE,
+                            force_update = F,
+                            query_only = T )
+```
+
+This query needs some explanation. First, we specified our area of interest (AOI)
+which fixes the spatial extent for matching scenes. Second, we queried data
+between the June, 1st 2016 and September, 30th 2019. However, with the option
+`time_period = "seasonal"` we tell the function not to deliver every matching
+scene between these two dates, but to deliver seasonal matches meaning that
+every scene with a date between June, 1st and September 30th is returned for 
+the years 2016 to 2019. The `rootdir` options specifies the directory to which
+files are downloaded. They are then placed inside a child directory of `rootdir`
+named according to the option `extent_name`. We also specified that the maximum cloud 
+cover for matching scenes should not be higher than 75 %. With `use_db = TRUE`
+we told the function to check for an SQLite database in the package directory and query
+the data from there. We could have specified `force_update = TRUE` which would cause
+the function to download the most recent tile index from the Google Bucket again and update the database.
+Last, we told the function to not really download the data, but only apply the query.
+This will return a data.frame with some information of the matching scenes.
+
+Here we found 113 matching results for our query. Let's see how many scenes
+will match our AOI when we change some of the parameters.
+
+```{r download2, eval = F}
+tiles_all = downloadS2(aoi = aoi,
+                       time_window = c("2016-06-01", "2019-09-30"),
+                       time_period = "full",
+                       rootdir = ".",
+                       extent_name = "test",
+                       max_cloud = 20,
+                       create_cloudmask = T,
+                       use_db = TRUE,
+                       force_update = F,
+                       query_only = T)
+```
+
+We changed the maximum allowed cloud cover and changed the `time_period` option to "full".
+In this case the query delivered 226 results.
+When we leave out the `query_only` option or explicitly set it to `FALSE`, the matching data
+will be downloaded into `<rootdir>/<extent_name>/L1C`. The function will print
+some informative messages during the process, however, since the download is time consuming
+this is not presented in this documentation. Note, that for this case where we actually
+download the data we also enabled the option `create_cloudmask = TRUE`. This option
+will translate the vector cloud mask which is delivered with the data to a GTiff
+file within the `IMG_DATA` directory. This file is needed when calculating
+vegetation indices to get cloud free images as explained in the next article on
+[Calculation of Indices](E02-calcIndices.html).
