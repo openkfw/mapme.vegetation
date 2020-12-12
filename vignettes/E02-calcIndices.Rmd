@@ -35,7 +35,7 @@ which will deliver you a data.frame with available indices. We thankfully adapte
 these indices from the awesome`sen2r::list_indices()` package. Here we print the first 10 available 
 indices.
 
-```{r}
+```{r check-indices}
 check_indices()[1:10,]
 ```
 

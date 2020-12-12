@@ -19,7 +19,7 @@ comment = "#>"
 
 ## Preparation
 
-The sen2tool package allows us to easily download and work with Sentinel-2 (S2) Level 1C datasets.
+The mapme.vegetation package allows us to easily download and work with Sentinel-2 (S2) Level 1C datasets.
 These datasets represent top of the atmosphere (TOA) reflectance values, thus they are not
 suitable for every analysis. However, for most applications based on indices, they are able
 to deliver robust results in a timely fashion. This is the main advantage of the present
@@ -27,7 +27,7 @@ package in comparison to other packages working with S2 data such as sen2r. sen2
 on level 2B datasets which means that either you have to order the corresponding tiles
 from the SentinelHub or process the level 1C data locally on your machine using sen2cor.
 Both methods consume a lot of time and resources.
-sen2tool downloads S2 data from a public Google Bucket which are available directly without
+mapme.vegetation downloads S2 data from a public Google Bucket which are available directly without
 the need of a user account or waiting time for placing orders. To download from the bucket
 one prerequisite is that the download tool gsutil is installed on your machine and available
 on the command line. Instructions to install the tool on various operating systems (OS)
@@ -58,7 +58,7 @@ by a `sf` object the other is the time window for which we are querying the data
 input is the maximum of cloud cover allowed for a scene to appear in our query. If it is not
 specified, then all scenes matching the mandatory inputs are downloaded.
 
-We will now load an example object which is found within the `sen2tool` package.
+We will now load an example object which is found within the `mapme.vegetation` package.
 
 ```{r read-in, eval = F}
 aoi = st_read(system.file("extdata", "testregion.gpkg", package = "mapme.vegetation"))
@@ -77,9 +77,9 @@ are then processed more quickly. In case you opt for not using a local database
 Queries are then applied to the `.csv` file which is why they are usually slower
 compared to the database approach.
 Note that either option you chose, the corresponding file is stored in the local
-installation path of the `sen2tool` packages. This is why when the package is 
+installation path of the `mapme.vegetation` packages. This is why when the package is 
 re-installed, the tile index needs to be downloaded and processed again. You
-can find the local installation path of the package with `r find.package("sen2tool")`.
+can find the local installation path of the package with `r find.package("mapme.vegetation")`.
 
 Now, let us send a first query.
 

@@ -4,7 +4,7 @@ Version: 1.0
 Authors@R: c(person("KfW Bankengruppe", role = c("cre", "cph"), email = "FZ-Evaluierung@kfw.de"),
              person(given = "Darius", family = "Görgen", role = "aut", email = "darius.goergen@maptailor.net"),
              person(given = "Fabian", family = "Löw", role = "aut", email = "fabian.loew@maptailor.net"))
-Maintainer: KfW Development Bank <info@kfw.de>
+Maintainer: KfW Bankengruppe <FZ-Evaluierung@kfw.de>
 Description: The packaged tools allow an easy access to Sentinel-2 Level 1C data
      at the GoogleCloud OpenData Bucket and subsequent processing based on the 
      gdalcubes package. A total number of 206 vegetation indices can be calculated
