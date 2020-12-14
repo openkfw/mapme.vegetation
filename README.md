@@ -15,7 +15,7 @@ In our installation instruction we assume that you are going to use R Studio as 
 
 This package can be installed directly by using the `devtools` package by entering the following command:
 
-`devtools::install_github("openKfW/mapme.vegetation")`
+`devtools::install_github("openkfw/mapme.vegetation")`
 
 Additionally, we ship this package with a Dockerfile which can be used to run the packages and its dependencies as a container. When `cd`ing into the repository,  building and running the image is as simple as:
 
