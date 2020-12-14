@@ -36,7 +36,7 @@ these indices from the awesome`sen2r::list_indices()` package. Here we print the
 indices.
 
 ```{r check-indices}
-check_indices()[1:10,]
+head(check_indices())
 ```
 
 To calculate an index we will have to specify its short name found in the `name`
