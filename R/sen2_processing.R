@@ -560,6 +560,6 @@ calcIndex <-  function(safes,
 #' \cr
 #' \emph{License:} GPL-3
 check_indices <- function(){
-  indices = read.csv(system.file("indices_sen2tool.csv", package = "sen2tool"))
+  indices = read.csv(system.file("indices_sen2tool.csv", package = "mapme.vegetation"))
   return(indices[ ,c(2:5)])
 }
